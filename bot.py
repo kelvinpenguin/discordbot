@@ -4,6 +4,7 @@ import asyncio
 import aiohttp
 import tempfile
 import os
+import sys
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 from elevenlabs.client import ElevenLabs
@@ -26,13 +27,54 @@ class AIBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix='!', intents=intents)
         
+        # Validate environment variables
+        self.validate_environment()
+        
         # Initialize API clients
-        self.openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-        self.elevenlabs_client = ElevenLabs(api_key=os.getenv('ELEVENLABS_API_KEY'))
+        openai_key = os.getenv('OPENAI_API_KEY')
+        elevenlabs_key = os.getenv('ELEVENLABS_API_KEY')
+        
+        if openai_key:
+            self.openai_client = AsyncOpenAI(api_key=openai_key)
+        else:
+            self.openai_client = None
+            logger.warning("OpenAI API key not found. /ai command will be disabled.")
+        
+        if elevenlabs_key:
+            self.elevenlabs_client = ElevenLabs(api_key=elevenlabs_key)
+        else:
+            self.elevenlabs_client = None
+            logger.warning("ElevenLabs API key not found. Voice functionality will be disabled.")
+        
         self.voice_id = os.getenv('ELEVENLABS_VOICE_ID', 'EXAVITQu4vr4xnSDxMaL')  # Default to Bella
         
         # Voice connection storage
         self.voice_connections = {}
+    
+    def validate_environment(self):
+        """Validate that required environment variables are set"""
+        required_vars = ['DISCORD_TOKEN']
+        optional_vars = ['OPENAI_API_KEY', 'ELEVENLABS_API_KEY', 'ELEVENLABS_VOICE_ID']
+        
+        missing_required = []
+        missing_optional = []
+        
+        for var in required_vars:
+            if not os.getenv(var) or os.getenv(var) == f'your_{var.lower()}_here':
+                missing_required.append(var)
+        
+        for var in optional_vars:
+            if not os.getenv(var) or 'your_' in os.getenv(var, ''):
+                missing_optional.append(var)
+        
+        if missing_required:
+            logger.error(f"Missing required environment variables: {missing_required}")
+            logger.error("Please check your .env file!")
+            sys.exit(1)
+        
+        if missing_optional:
+            logger.warning(f"Missing optional environment variables: {missing_optional}")
+            logger.warning("Some bot features may be disabled.")
         
     async def setup_hook(self):
         """Called when the bot is starting up"""
@@ -53,6 +95,13 @@ bot = AIBot()
 async def ai_command(interaction: discord.Interaction, prompt: str):
     """Handle the /ai slash command"""
     await interaction.response.defer()
+    
+    # Check if OpenAI client is available
+    if not bot.openai_client:
+        await interaction.followup.send(
+            "❌ OpenAI API is not configured. Please set your OPENAI_API_KEY in the .env file and restart the bot."
+        )
+        return
     
     try:
         # Call OpenAI API
@@ -85,6 +134,19 @@ async def ai_command(interaction: discord.Interaction, prompt: str):
 async def connect_command(interaction: discord.Interaction):
     """Handle the /connect slash command"""
     await interaction.response.defer()
+    
+    # Check if required APIs are available
+    if not bot.openai_client:
+        await interaction.followup.send(
+            "❌ OpenAI API is not configured. Please set your OPENAI_API_KEY in the .env file and restart the bot."
+        )
+        return
+    
+    if not bot.elevenlabs_client:
+        await interaction.followup.send(
+            "❌ ElevenLabs API is not configured. Please set your ELEVENLABS_API_KEY in the .env file and restart the bot."
+        )
+        return
     
     # Check if user is in a voice channel
     if not interaction.user.voice or not interaction.user.voice.channel:

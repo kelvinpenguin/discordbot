@@ -66,7 +66,14 @@ A Discord bot with AI text and voice capabilities using OpenAI and ElevenLabs.
    # Edit .env with your actual API keys and tokens
    ```
 
-6. **Invite Bot to Server:**
+6. **Verify Configuration:**
+   ```bash
+   python check_config.py
+   # This will check if your .env file is properly configured
+   # Run with --help for guidance on getting API keys
+   ```
+
+7. **Invite Bot to Server:**
    - Go to OAuth2 > URL Generator in Discord Developer Portal
    - Select scopes: `bot`, `applications.commands`
    - Select permissions: 
@@ -127,19 +134,24 @@ You can modify the following in `bot.py`:
 
 ### Common Issues
 
-1. **"FFmpeg not found"**
+1. **"OpenAI API key must be set" Error**
+   - Edit your `.env` file and replace `your_openai_api_key_here` with your actual OpenAI API key
+   - Run `python check_config.py` to verify your configuration
+   - Make sure the `.env` file is in the same directory as `bot.py`
+
+2. **"FFmpeg not found"**
    - Install FFmpeg using the instructions above
    - Ensure FFmpeg is in your system PATH
 
-2. **"Bot not responding to slash commands"**
+3. **"Bot not responding to slash commands"**
    - Wait a few minutes after inviting the bot (commands need to sync)
    - Check bot permissions in your Discord server
 
-3. **"Voice connection fails"**
+4. **"Voice connection fails"**
    - Ensure bot has Connect and Speak permissions
    - Check if voice channel has user limits
 
-4. **"API errors"**
+5. **"API errors"**
    - Verify your API keys are correct and have sufficient credits
    - Check API rate limits
 
@@ -154,6 +166,8 @@ The bot logs important events and errors. Check the console output for debugging
 ```
 discord-ai-bot/
 ├── bot.py              # Main bot file
+├── check_config.py     # Configuration checker script
+├── setup_venv.py       # Virtual environment setup script
 ├── requirements.txt    # Python dependencies
 ├── .env.example       # Environment variables template
 ├── .env              # Your actual environment variables (not in git)
