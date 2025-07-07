@@ -37,12 +37,6 @@ def check_config():
         'DISCORD_TOKEN': 'Discord Bot Token',
     }
     
-    optional_vars = {
-        'OPENAI_API_KEY': 'OpenAI API Key',
-        'ELEVENLABS_API_KEY': 'ElevenLabs API Key',
-        'ELEVENLABS_VOICE_ID': 'ElevenLabs Voice ID'
-    }
-    
     all_good = True
     
     print("\n📋 Required Configuration:")
@@ -54,64 +48,46 @@ def check_config():
         else:
             print(f"✅ {description} ({var}) - Configured")
     
-    print("\n🔧 Optional Configuration:")
-    optional_configured = 0
-    for var, description in optional_vars.items():
-        value = os.getenv(var)
-        if not value or 'your_' in value.lower():
-            print(f"⚠️  {description} ({var}) - Not configured")
-        else:
-            print(f"✅ {description} ({var}) - Configured")
-            optional_configured += 1
-    
     print("\n" + "=" * 45)
     
     if not all_good:
         print("❌ Configuration incomplete!")
         print("\nTo fix:")
         print("1. Edit the .env file in your project directory")
-        print("2. Replace placeholder values with your actual API keys")
+        print("2. Replace 'your_discord_bot_token_here' with your actual Discord bot token")
         print("3. Run this script again to verify")
         return False
     
-    if optional_configured == 0:
-        print("⚠️  Bot will start but with limited functionality")
-        print("Add OpenAI and ElevenLabs API keys for full features")
-    elif optional_configured < len(optional_vars):
-        print("✅ Bot will start with partial functionality")
-        if not os.getenv('OPENAI_API_KEY') or 'your_' in os.getenv('OPENAI_API_KEY', ''):
-            print("   - /ai command will be disabled")
-        if not os.getenv('ELEVENLABS_API_KEY') or 'your_' in os.getenv('ELEVENLABS_API_KEY', ''):
-            print("   - Voice functionality will be disabled")
-    else:
-        print("🎉 All configuration complete! Bot ready to run.")
+    print("🎉 Configuration complete! Your free AI bot is ready to run!")
+    print("✨ Features available:")
+    print("   • Free AI chat with /ai command")
+    print("   • Smart conversational responses")
+    print("   • No API costs or limits")
+    print("   • Works immediately!")
     
     print(f"\nTo start the bot, run: python bot.py")
     return True
 
 def show_setup_help():
-    """Show help for getting API keys"""
-    print("\n📚 How to get API keys:")
-    print("\n1. Discord Bot Token:")
-    print("   - Go to https://discord.com/developers/applications")
-    print("   - Create a new application")
-    print("   - Go to 'Bot' section and create a bot")
-    print("   - Copy the token")
+    """Show help for getting Discord bot token"""
+    print("\n📚 How to get your Discord Bot Token:")
+    print("\n🤖 Step-by-step setup:")
+    print("   1. Go to https://discord.com/developers/applications")
+    print("   2. Click 'New Application' and give it a name")
+    print("   3. Go to the 'Bot' section in the left sidebar")
+    print("   4. Click 'Add Bot' if needed")
+    print("   5. Under 'Token', click 'Reset Token' then 'Copy'")
+    print("   6. Paste this token in your .env file")
     
-    print("\n2. OpenAI API Key:")
-    print("   - Go to https://platform.openai.com/api-keys")
-    print("   - Create a new API key")
-    print("   - Copy the key")
+    print("\n🔐 Bot Permissions Setup:")
+    print("   1. In the same bot page, scroll to 'Privileged Gateway Intents'")
+    print("   2. Enable 'Message Content Intent'")
+    print("   3. Go to 'OAuth2' → 'URL Generator'")
+    print("   4. Select scopes: 'bot' and 'applications.commands'")
+    print("   5. Select permissions: 'Send Messages', 'Use Slash Commands'")
+    print("   6. Use the generated URL to invite your bot to a server")
     
-    print("\n3. ElevenLabs API Key:")
-    print("   - Go to https://elevenlabs.io/")
-    print("   - Sign up/login and go to your profile")
-    print("   - Copy your API key")
-    
-    print("\n4. ElevenLabs Voice ID (optional):")
-    print("   - Go to https://elevenlabs.io/voice-library")
-    print("   - Find a voice you like and copy its ID")
-    print("   - Or leave the default (Bella voice)")
+    print("\n✨ That's it! No other API keys needed - this bot is completely free!")
 
 if __name__ == "__main__":
     import sys
@@ -121,6 +97,6 @@ if __name__ == "__main__":
     else:
         success = check_config()
         if not success:
-            print("\n❓ Need help getting API keys? Run: python check_config.py --help")
+            print("\n❓ Need help setting up Discord bot? Run: python check_config.py --help")
         
         exit(0 if success else 1)
